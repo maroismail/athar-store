@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم ꧁ أَثَـــرْ ꧂ | ATHAR ADMIN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0f1115;
+            --surface: #181b21;
+            --surface-2: #22262f;
+            --text: #f3f4f6;
+            --muted: #9ca3af;
+            --border: #2e333d;
+            --accent: #ffffff;
+            --green: #10b981;
+            --yellow: #f59e0b;
+            --red: #ef4444;
+            --blue: #3b82f6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+
+        /* القائمة الجانبية */
+        .sidebar {
+            width: 260px;
+            background: var(--surface);
+            border-left: 1px solid var(--border);
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+        }
+
+        .brand {
+            font-family: 'Amiri', serif;
+            font-size: 1.8rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        .brand span { display: block; font-family: 'Cairo', sans-serif; font-size: 0.75rem; color: var(--muted); letter-spacing: 3px; }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            padding: 0.9rem 1rem;
+            border-radius: 12px;
+            text-align: right;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.2s;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--accent);
+            color: #000;
+        }
+
+        .store-link {
+            margin-top: auto;
+            background: var(--surface-2);
+            color: var(--text);
+            text-decoration: none;
+            padding: 0.9rem;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 700;
+            border: 1px solid var(--border);
+        }
+
+        /* المحتوى الرئيسي */
+        .main { flex-grow: 1; padding: 2rem 3%; overflow-y: auto; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            border-radius: 16px;
+        }
+
+        .stat-card p { color: var(--muted); font-size: 0.9rem; margin-bottom: 6px; }
+        .stat-card h2 { font-size: 2rem; font-weight: 900; }
+
+        .section { display: none; }
+        .section.active { display: block; }
+
+        /* بطاقات الأوردرات */
+        .orders-list { display: flex; flex-direction: column; gap: 1.2rem; }
+
+        .order-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: 1.2fr 1.5fr 1fr;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .badge-pending { background: rgba(245, 158, 11, 0.15); color: var(--yellow); }
+        .badge-confirmed { background: rgba(16, 185, 129, 0.15); color: var(--green); }
+        .badge-cancelled { background: rgba(239, 68, 68, 0.15); color: var(--red); }
+
+        .call-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+
+        .btn-action {
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-call { background: var(--blue); color: #fff; }
+        .btn-wa { background: var(--green); color: #fff; }
+        .btn-confirm { background: var(--surface-2); color: var(--green); border: 1px solid var(--green); }
+        .btn-cancel { background: var(--surface-2); color: var(--red); border: 1px solid var(--red); }
+
+        /* نموذج إضافة منتج */
+        .form-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 2rem;
+            border-radius: 16px;
+            max-width: 700px;
+            margin-bottom: 2.5rem;
+        }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.9rem; color: var(--muted); }
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            outline: none;
+        }
+        .form-control:focus { border-color: var(--accent); }
+
+        .btn-submit {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 0.9rem 2rem;
+            border-radius: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        /* جدول المنتجات */
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--surface);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .products-table th, .products-table td {
+            padding: 1rem;
+            text-align: right;
+            border-bottom: 1px solid var(--border);
+        }
+        .products-table img { width: 50px; height: 60px; object-fit: cover; border-radius: 8px; }
+
+        @media (max-width: 900px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: static; flex-direction: row; flex-wrap: wrap; padding: 1rem; }
+            .order-card { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="brand">
+            ꧁ أَثَـــرْ ꧂
+            <span>ADMIN PANEL</span>
+        </div>
+
+        <nav>
+            <button class="nav-btn active" onclick="switchTab('orders', this)">
+                <i class="fa-solid fa-bag-shopping"></i> الطلبات الواردة (<span id="pending-badge">0</span>)
+            </button>
+            <button class="nav-btn" onclick="switchTab('products', this)">
+                <i class="fa-solid fa-shirt"></i> إدارة المنتجات
+            </button>
+        </nav>
+
+        <a href="index.html" target="_blank" class="store-link">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> فتح المتجر
+        </a>
+    </aside>
+
+    <main class="main">
+        <!-- الإحصائيات -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <p>إجمالي الطلبات</p>
+                <h2 id="stat-orders">0</h2>
+            </div>
+            <div class="stat-card">
+                <p>إجمالي المبيعات (المؤكدة)</p>
+                <h2 id="stat-revenue" style="color: var(--green);">0 ج.م</h2>
+            </div>
+            <div class="stat-card">
+                <p>المنتجات المعروضة</p>
+                <h2 id="stat-products">0</h2>
+            </div>
+        </div>
+
+        <!-- قسم الطلبات -->
+        <section id="tab-orders" class="section active">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2>الطلبات الواردة من المتجر</h2>
+                <button onclick="loadDashboard()" style="background: var(--surface-2); color: var(--text); border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px; cursor: pointer;">
+                    <i class="fa-solid fa-rotate"></i> تحديث
+                </button>
+            </div>
+            <div class="orders-list" id="orders-container"></div>
+        </section>
+
+        <!-- قسم المنتجات -->
+        <section id="tab-products" class="section">
+            <h2 style="margin-bottom: 1.5rem;">إضافة قطعة جديدة للمتجر</h2>
+            <div class="form-box">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>اسم القطعة *</label>
+                        <input type="text" id="p-name" class="form-control" placeholder="مثال: هودي أَثَـــرْ أوفر سايز">
+                    </div>
+                    <div class="form-group">
+                        <label>السعر (ج.م) *</label>
+                        <input type="number" id="p-price" class="form-control" placeholder="1100">
+                    </div>
+                    <div class="form-group">
+                        <label>القسم *</label>
+                        <select id="p-category" class="form-control">
+                            <option value="hoodies">هوديز (Hoodies)</option>
+                            <option value="tshirts">تيشيرتات (Boxy Fit)</option>
+                            <option value="pants">بناطيل (Cargo)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>البادج (اختياري)</label>
+                        <input type="text" id="p-badge" class="form-control" placeholder="مثال: جديد / الأكثر مبيعاً">
+                    </div>
+                    <div class="form-group">
+                        <label>رابط الصورة الأساسية *</label>
+                        <input type="url" id="p-img1" class="form-control" placeholder="https://...">
+                    </div>
+                    <div class="form-group">
+                        <label>رابط الصورة الثانية (عند تمرير الماوس)</label>
+                        <input type="url" id="p-img2" class="form-control" placeholder="https://...">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>المقاسات المتاحة (افصل بينها بفاصلة)</label>
+                    <input type="text" id="p-sizes" class="form-control" value="M, L, XL, XXL">
+                </div>
+                <div class="form-group">
+                    <label>وصف الخامة والتصميم *</label>
+                    <textarea id="p-desc" class="form-control" rows="3" placeholder="اكتب تفاصيل القماش والطباعة..."></textarea>
+                </div>
+                <button class="btn-submit" onclick="addNewProduct()">
+                    <i class="fa-solid fa-plus"></i> نشر المنتج في المتجر فوراً
+                </button>
+            </div>
+
+            <h2 style="margin-bottom: 1rem;">المنتجات الحالية في المتجر</h2>
+            <table class="products-table">
+                <thead>
+                    <tr>
+                        <th>الصورة</th>
+                        <th>اسم المنتج</th>
+                        <th>القسم</th>
+                        <th>السعر</th>
+                        <th>إجراء</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-products-list"></tbody>
+            </table>
+        </section>
+    </main>
+
+    <script>
+        const STORAGE_PRODUCTS_KEY = 'athar_store_products';
+        const STORAGE_ORDERS_KEY = 'athar_store_orders';
+
+        // بيانات افتراضية أول مرة فقط
+        const defaultProducts = [
+            {
+                id: 1,
+                name: "هودي أَثَـــرْ الثقيل - أسود مطفي",
+                category: "hoodies",
+                categoryLabel: "هوديز",
+                price: 1150,
+                badge: "الأكثر مبيعاً",
+                images: [
+                    "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=800&q=85",
+                    "https://images.unsplash.com/photo-1509942774463-acf339cf87d5?auto=format&fit=crop&w=800&q=85"
+                ],
+                sizes: ["M", "L", "XL", "XXL"],
+                description: "هودي بقصة Drop-Shoulder عصرية مصنوع من قطن ميلتون ثقيل (450 GSM) مبطن من الداخل، مزين بتطريز شعار ꧁ أَثَـــرْ ꧂."
+            },
+            {
+                id: 2,
+                name: "تيشيرت بوكسي فيت خط عربي - أوف وايت",
+                category: "tshirts",
+                categoryLabel: "تيشيرتات",
+                price: 620,
+                badge: "جديد",
+                images: [
+                    "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=800&q=85",
+                    "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=800&q=85"
+                ],
+                sizes: ["S", "M", "L", "XL"],
+                description: "تيشيرت بقصة Boxy واسعة وياقة مرتفعة، مصنوع من قطن سنجل جيرسي ثقيل (260 GSM)."
+            }
+        ];
+
+        function getProducts() {
+            const saved = localStorage.getItem(STORAGE_PRODUCTS_KEY);
+            if (!saved) {
+                localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(defaultProducts));
+                return defaultProducts;
+            }
+            return JSON.parse(saved);
+        }
+
+        function getOrders() {
+            return JSON.parse(localStorage.getItem(STORAGE_ORDERS_KEY) || '[]');
+        }
+
+        function switchTab(tab, btn) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function addNewProduct() {
+            const name = document.getElementById('p-name').value.trim();
+            const price = Number(document.getElementById('p-price').value);
+            const category = document.getElementById('p-category').value;
+            const badge = document.getElementById('p-badge').value.trim();
+            const img1 = document.getElementById('p-img1').value.trim();
+            const img2 = document.getElementById('p-img2').value.trim() || img1;
+            const sizes = document.getElementById('p-sizes').value.split(',').map(s => s.trim()).filter(Boolean);
+            const description = document.getElementById('p-desc').value.trim();
+
+            if (!name || !price || !img1) {
+                alert("يرجى إدخال اسم المنتج والسعر ورابط الصورة الأساسية على الأقل.");
+                return;
+            }
+
+            const catNames = { hoodies: "هوديز", tshirts: "تيشيرتات", pants: "بناطيل" };
+            const products = getProducts();
+
+            products.unshift({
+                id: Date.now(),
+                name,
+                price,
+                category,
+                categoryLabel: catNames[category],
+                badge,
+                images: [img1, img2],
+                sizes: sizes.length ? sizes : ["M", "L", "XL"],
+                description: description || "تصميم عصري من براند ꧁ أَثَـــرْ ꧂ بخامات قطنية فاخرة."
+            });
+
+            localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(products));
+            
+            // تفريغ الحقول
+            document.getElementById('p-name').value = '';
+            document.getElementById('p-price').value = '';
+            document.getElementById('p-badge').value = '';
+            document.getElementById('p-img1').value = '';
+            document.getElementById('p-img2').value = '';
+            document.getElementById('p-desc').value = '';
+
+            alert("تم نشر المنتج بنجاح! سيظهر الآن في صفحة المتجر.");
+            loadDashboard();
+        }
+
+        function deleteProduct(id) {
+            if (!confirm("هل أنت متأكد من حذف هذا المنتج؟")) return;
+            const products = getProducts().filter(p => p.id !== id);
+            localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(products));
+            loadDashboard();
+        }
+
+        function updateOrderStatus(orderId, status) {
+            const orders = getOrders();
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                order.status = status;
+                localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders));
+                loadDashboard();
+            }
+        }
+
+        function loadDashboard() {
+            const products = getProducts();
+            const orders = getOrders();
+
+            // تحديث الإحصائيات
+            document.getElementById('stat-orders').innerText = orders.length;
+            document.getElementById('stat-products').innerText = products.length;
+            
+            const confirmedRevenue = orders
+                .filter(o => o.status === 'confirmed')
+                .reduce((sum, o) => sum + o.total, 0);
+            document.getElementById('stat-revenue').innerText = `${confirmedRevenue} ج.م`;
+
+            const pendingCount = orders.filter(o => o.status === 'pending').length;
+            document.getElementById('pending-badge').innerText = pendingCount;
+
+            // عرض الطلبات
+            const ordersContainer = document.getElementById('orders-container');
+            if (orders.length === 0) {
+                ordersContainer.innerHTML = `<div style="background:var(--surface); padding:3rem; text-align:center; border-radius:16px; color:var(--muted);">لا توجد طلبات واردة حتى الآن.</div>`;
+            } else {
+                ordersContainer.innerHTML = orders.map(order => {
+                    const statusBadge = order.status === 'confirmed'
+                        ? `<span class="badge badge-confirmed">تم التأكيد</span>`
+                        : order.status === 'cancelled'
+                        ? `<span class="badge badge-cancelled">ملغي</span>`
+                        : `<span class="badge badge-pending">في انتظار المكالمة</span>`;
+
+                    const itemsHTML = order.items.map(i => `<div>• ${i.name} (مقاس ${i.size}) × ${i.qty}</div>`).join('');
+                    const cleanPhone = order.phone.replace(/^0/, '20');
+                    const waMsg = encodeURIComponent(`أهلاً أستاذ ${order.name}، معاك فريق براند ꧁ أَثَـــرْ ꧂ لتأكيد أوردرك بقيمة ${order.total} ج.م.`);
+
+                    return `
+                        <div class="order-card">
+                            <div>
+                                <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                                    <strong>#${order.id.toString().slice(-4)}</strong>
+                                    ${statusBadge}
+                                </div>
+                                <div style="font-size:1.1rem; font-weight:800;">${order.name}</div>
+                                <div style="color:var(--muted); font-size:0.9rem;"><i class="fa-solid fa-phone"></i> ${order.phone}</div>
+                                <div style="color:var(--muted); font-size:0.9rem;"><i class="fa-solid fa-location-dot"></i> ${order.city} - ${order.address}</div>
+                                <div style="color:var(--muted); font-size:0.8rem; margin-top:4px;">${order.date}</div>
+                            </div>
+
+                            <div style="background:var(--bg); padding:1rem; border-radius:12px; font-size:0.9rem;">
+                                <div style="color:var(--muted); margin-bottom:6px; font-weight:700;">تفاصيل القطع:</div>
+                                ${itemsHTML}
+                                <div style="margin-top:8px; padding-top:8px; border-top:1px solid var(--border); font-weight:900; color:var(--green);">
+                                    الإجمالي شامل الشحن: ${order.total} ج.م
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="call-actions">
+                                    <a href="tel:${order.phone}" class="btn-action btn-call">
+                                        <i class="fa-solid fa-phone-volume"></i> اتصال بالعميل
+                                    </a>
+                                    <a href="https://wa.me/${cleanPhone}?text=${waMsg}" target="_blank" class="btn-action btn-wa">
+                                        <i class="fa-brands fa-whatsapp"></i> واتساب
+                                    </a>
+                                </div>
+                                <div class="call-actions">
+                                    <button class="btn-action btn-confirm" onclick="updateOrderStatus(${order.id}, 'confirmed')">
+                                        <i class="fa-solid fa-check"></i> تأكيد الأوردر
+                                    </button>
+                                    <button class="btn-action btn-cancel" onclick="updateOrderStatus(${order.id}, 'cancelled')">
+                                        <i class="fa-solid fa-xmark"></i> إلغاء
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // عرض المنتجات في الجدول
+            const tbody = document.getElementById('admin-products-list');
+            tbody.innerHTML = products.map(p => `
+                <tr>
+                    <td><img src="${p.images[0]}" alt=""></td>
+                    <td><strong>${p.name}</strong></td>
+                    <td>${p.categoryLabel}</td>
+                    <td>${p.price} ج.م</td>
+                    <td>
+                        <button onclick="deleteProduct(${p.id})" style="background:rgba(239,68,68,0.15); color:var(--red); border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:700;">
+                            حذف
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // تحديث تلقائي عند وصول طلب جديد من التبويب الآخر
+        window.addEventListener('storage', loadDashboard);
+        loadDashboard();
+    </script>
+</body>
+</html>
